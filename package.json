@@ -1,0 +1,91 @@
+{
+  "name": "devlocal-ia",
+  "displayName": "DevLocal AI",
+  "description": "DevLocal AI is a VS Code extension that lets you interact with a local AI directly inside your editor.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:devlocal-ia.openPanel",
+    "onView:devlocalAI.chatView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "devlocal-ia.openPanel",
+        "title": "Open Chat Sidebar",
+        "category": "DevLocal AI"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devlocalAI",
+          "title": "DevLocal AI",
+          "icon": "media/devlocal-ai.svg"
+        }
+      ]
+    },
+    "views": {
+      "devlocalAI": [
+        {
+          "type": "webview",
+          "id": "devlocalAI.chatView",
+          "name": "Chat",
+          "contextualTitle": "DevLocal AI",
+          "icon": "media/devlocal-ai.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "build:webview:css": "tailwindcss -i ./src/webview/styles/globals.css -o ./media/webview/main.css --minify",
+    "build:webview:js": "rollup -c",
+    "build:webview": "npm run build:webview:css && npm run build:webview:js",
+    "compile": "npm run build:webview && tsc -p ./",
+    "watch:extension": "tsc -watch -p ./",
+    "watch:webview:css": "tailwindcss -i ./src/webview/styles/globals.css -o ./media/webview/main.css --watch",
+    "watch:webview:js": "rollup -c -w",
+    "watch": "concurrently \"npm:watch:extension\" \"npm:watch:webview:css\" \"npm:watch:webview:js\"",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-replace": "^6.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@rollup/plugin-url": "^8.0.2",
+    "@tailwindcss/cli": "^4.2.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.19.15",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.110.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.27.4",
+    "eslint": "^9.39.3",
+    "rollup": "^4.60.0",
+    "tailwindcss": "^4.2.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

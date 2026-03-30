@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@source "../**/*.{ts,tsx}";
+
+:root {
+	color-scheme: dark;
+	font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
+}
+
+html,
+body,
+#root {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100%;
+	overflow: hidden;
+	background:
+		radial-gradient(circle at top, rgba(255, 145, 64, 0.08), transparent 28%),
+		linear-gradient(180deg, #121213 0%, #09090a 100%);
+	color: #f3ede5;
+	font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
+}
+
+* {
+	box-sizing: border-box;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.08);
+	border-radius: 999px;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+	color: inherit;
+}
+
+::selection {
+	background: rgba(255, 145, 64, 0.22);
+}
+
+textarea::placeholder {
+	color: #786d68;
+}

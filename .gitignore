@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Generated webview assets
+media/webview/
+
+# VS Code extension artifacts
+.vscode-test/
+*.vsix
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Temp files and caches
+.cache/
+.rollup.cache/
+.eslintcache
+tmp/
+temp/
+.tmp/
+
+# Environment files
+.env
+.env.*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / workspace-local files
+*.code-workspace
+.history/
+.vscode/*.local.json
+.vscode/settings.local.json
