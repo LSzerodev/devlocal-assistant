@@ -419,9 +419,9 @@ What is already visible is promising. What matters now is turning that foundatio
 
 ## License
 
-The intended license for the first serious public open-source release is the MIT License.
+This project is licensed under the Apache License 2.0.
 
-If you publish the repository publicly, make sure the root license file and package metadata are aligned with that decision before tagging a release.
+If you publish future releases, keep the root `LICENSE` file and the `package.json` license metadata aligned so the repository terms remain clear to contributors and users.
 
 ## Author
 
