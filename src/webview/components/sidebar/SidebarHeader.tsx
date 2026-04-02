@@ -1,12 +1,14 @@
 import { SettingsIcon } from '../Icons';
+import type { OllamaConnectionStatus } from '../../../chat/protocol';
 import { StatusBadge } from './StatusBadge';
 import Container from '../../assets/Container.svg';
 
 type SidebarHeaderProps = {
 	onOpenSettings: () => void;
+	status: OllamaConnectionStatus;
 };
 
-export function SidebarHeader({ onOpenSettings }: SidebarHeaderProps) {
+export function SidebarHeader({ onOpenSettings, status }: SidebarHeaderProps) {
 	return (
 		<header className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
 			<div className="flex items-center">
@@ -16,7 +18,7 @@ export function SidebarHeader({ onOpenSettings }: SidebarHeaderProps) {
 			</div>
 
 			<div className="justify-self-center">
-				<StatusBadge />
+				<StatusBadge status={status} />
 			</div>
 
 			<button

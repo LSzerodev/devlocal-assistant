@@ -6,9 +6,19 @@ type ComposerProps = {
 	onModelChange: (value: string) => void;
 	prompt: string;
 	onPromptChange: (value: string) => void;
+	onSend: () => void;
+	disabled?: boolean;
 };
 
-export function Composer({ model, options, onModelChange, prompt, onPromptChange }: ComposerProps) {
+export function Composer({
+	model,
+	options,
+	onModelChange,
+	prompt,
+	onPromptChange,
+	onSend,
+	disabled = false,
+}: ComposerProps) {
 	return (
 		<div className="rounded-[18px] border border-white/[0.05] bg-white/[0.035] px-4 pb-4 pt-5 shadow-[0_20px_60px_rgba(0,0,0,0.42)] backdrop-blur-md">
 			<textarea
@@ -46,7 +56,9 @@ export function Composer({ model, options, onModelChange, prompt, onPromptChange
 				<button
 					type="button"
 					aria-label="Send message"
-					className="flex h-14 w-14 items-center justify-center rounded-full bg-[linear-gradient(180deg,#ff9d4d_0%,#ff7a1f_100%)] text-white shadow-[0_0_0_1px_rgba(255,179,115,0.22),0_0_28px_rgba(255,125,36,0.42)] transition hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(255,179,115,0.28),0_0_34px_rgba(255,125,36,0.5)]"
+					onClick={onSend}
+					disabled={disabled}
+					className="flex h-14 w-14 items-center justify-center rounded-full bg-[linear-gradient(180deg,#ff9d4d_0%,#ff7a1f_100%)] text-white shadow-[0_0_0_1px_rgba(255,179,115,0.22),0_0_28px_rgba(255,125,36,0.42)] transition hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(255,179,115,0.28),0_0_34px_rgba(255,125,36,0.5)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
 				>
 					<SendIcon className="h-5 w-5" />
 				</button>

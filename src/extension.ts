@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ChatViewProvider } from './chat/chatViewProvider';
 import { RouterDependencies } from './chat/messageRouter';
+import { ollamaFetch } from './services/ollama.service';
 export function activate(context: vscode.ExtensionContext) {
 console.log('✅ extensão ativada');
 
@@ -21,17 +22,14 @@ console.log('✅ extensão ativada');
     ollamaStatus: {
       statusOllama: async () => {
         console.log('🔌 checking ollama');
-        return { status: 'connected' };
+        return { status: 'checking' };
       },
     },
 
     chatSend: {
       chatSend: async (send) => {
         console.log('💬 sending chat:', send);
-        return {
-          response: 'Teste de resposta da IA',
-          model: send.model,
-        };
+        return await ollamaFetch({ model: send.model, prompt: send.prompt });
       },
     },
   };

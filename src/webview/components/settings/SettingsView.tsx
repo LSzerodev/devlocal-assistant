@@ -16,9 +16,11 @@ type SettingsViewProps = {
 	host: string;
 	infrastructureLoad: InfrastructureLoad;
 	globalOverride: GlobalOverride;
+	helperText?: string;
 	onBack: () => void;
 	onCommitChanges: () => void;
 	onHostChange: (value: string) => void;
+	onTestConnection: () => void;
 	onInfrastructureLoadChange: (value: InfrastructureLoad) => void;
 	onGlobalOverrideChange: (value: GlobalOverride) => void;
 	onModelChange: (value: string) => void;
@@ -30,14 +32,17 @@ export function SettingsView({
 	host,
 	infrastructureLoad,
 	globalOverride,
+	helperText,
 	onBack,
 	onCommitChanges,
 	onHostChange,
+	onTestConnection,
 	onInfrastructureLoadChange,
 	onGlobalOverrideChange,
 	onModelChange,
 }: SettingsViewProps) {
-	const [helperText, setHelperText] = useState('Preview only. No live network, persistence, or Ollama integration yet.');
+	const [localHelperText, setLocalHelperText] = useState('Preview only. No live network, persistence, or Ollama integration yet.');
+	const displayHelperText = helperText ?? localHelperText;
 
 	const currentModelName = (() => {
 		switch (model) {
@@ -84,14 +89,12 @@ export function SettingsView({
 
 			<HostGatewayField
 				host={host}
-				helperText={helperText}
+				helperText={displayHelperText}
 				onDocs={() => {
-					setHelperText('Docs is a local-only preview action in this MVP.');
+					setLocalHelperText('Docs is a local-only preview action in this MVP.');
 				}}
 				onHostChange={onHostChange}
-				onTestConnection={() => {
-					setHelperText('Mock connection check completed locally. No request was sent.');
-				}}
+				onTestConnection={onTestConnection}
 			/>
 
 			<InfrastructureLoadGrid selected={infrastructureLoad} onSelect={onInfrastructureLoadChange} />
@@ -104,7 +107,6 @@ export function SettingsView({
 
 			<CommitChangesButton
 				onCommit={() => {
-					setHelperText('Mock changes committed locally. Returning to the main sidebar.');
 					onCommitChanges();
 				}}
 			/>
