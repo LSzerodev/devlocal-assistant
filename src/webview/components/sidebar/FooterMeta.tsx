@@ -1,14 +1,15 @@
 import { BoltIcon, ShieldIcon } from '../Icons';
+import styles from './FooterMeta.module.css';
 
 export function FooterMeta() {
 	return (
-		<footer className="flex items-center justify-center gap-4 px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6f655f]">
-			<span className="inline-flex items-center gap-1.5">
-				<BoltIcon className="h-3.5 w-3.5" />
+		<footer className={styles.footer}>
+			<span className={styles.item}>
+				<BoltIcon className={styles.icon} />
 				Turbo Enabled
 			</span>
-			<span className="inline-flex items-center gap-1.5">
-				<ShieldIcon className="h-3.5 w-3.5" />
+			<span className={styles.item}>
+				<ShieldIcon className={styles.icon} />
 				End-to-End Encrypted
 			</span>
 		</footer>

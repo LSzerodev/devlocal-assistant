@@ -1,38 +1,37 @@
 import * as vscode from 'vscode';
 import { ChatViewProvider } from './chat/chatViewProvider';
-import { RouterDependencies } from './chat/messageRouter';
+import type { RouterDependencies } from './chat/messageRouter';
+import { DEFAULT_OLLAMA_HOST, normalizeOllamaHost } from './chat/ollamaHost';
+import type { ChatSettings } from './chat/protocol';
+import { OllamaChecker } from './services/ollama.check';
 import { ollamaFetch } from './services/ollama.service';
+
+const SETTINGS_KEY = 'devlocalAI.settings';
+const DEFAULT_SETTINGS: ChatSettings = {
+	model: '',
+	host: DEFAULT_OLLAMA_HOST,
+};
+
+const ollamaChecker = new OllamaChecker();
+
 export function activate(context: vscode.ExtensionContext) {
-console.log('✅ extensão ativada');
-
 	const routerDeps: RouterDependencies = {
-    settingsLoad: {
-      settingsLoad: async () => {
-        console.log('📦 loading settings');
-        return { model: 'mistral', host: 'http://localhost:11434' };
-      },
-    },
+		settings: {
+			load: async () => loadSettings(context),
+			save: async (settings) => {
+				const normalizedSettings = normalizeSettings(settings);
+				await context.globalState.update(SETTINGS_KEY, normalizedSettings);
 
-    settingsSave: {
-      settingsSave: async (save) => {
-        console.log('💾 saving settings:', save);
-      },
-    },
-
-    ollamaStatus: {
-      statusOllama: async () => {
-        console.log('🔌 checking ollama');
-        return { status: 'checking' };
-      },
-    },
-
-    chatSend: {
-      chatSend: async (send) => {
-        console.log('💬 sending chat:', send);
-        return await ollamaFetch({ model: send.model, prompt: send.prompt });
-      },
-    },
-  };
+				return normalizedSettings;
+			},
+		},
+		ollama: {
+			check: async (host) => ollamaChecker.check(host),
+		},
+		chat: {
+			send: async (send) => ollamaFetch(send),
+		},
+	};
 
 	const chatViewProvider = new ChatViewProvider(context.extensionUri, routerDeps);
 
@@ -49,3 +48,19 @@ console.log('✅ extensão ativada');
 }
 
 export function deactivate() {}
+
+function loadSettings(context: vscode.ExtensionContext): ChatSettings {
+	const savedSettings = context.globalState.get<Partial<ChatSettings>>(SETTINGS_KEY);
+
+	return normalizeSettings({
+		...DEFAULT_SETTINGS,
+		...savedSettings,
+	});
+}
+
+function normalizeSettings(settings: ChatSettings): ChatSettings {
+	return {
+		model: settings.model.trim(),
+		host: normalizeOllamaHost(settings.host),
+	};
+}

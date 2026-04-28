@@ -1,0 +1,51 @@
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.03);
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 999px;
+}
+
+.label {
+	color: #d8d1cb;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.24em;
+	text-transform: uppercase;
+}
+
+.connected {
+	border-color: rgba(16, 185, 129, 0.18);
+}
+
+.connected .dot {
+	background: #4ade80;
+	box-shadow: 0 0 12px rgba(74, 222, 128, 0.65);
+}
+
+.checking {
+	border-color: rgba(245, 158, 11, 0.18);
+}
+
+.checking .dot {
+	background: #fbbf24;
+	box-shadow: 0 0 12px rgba(251, 191, 36, 0.55);
+}
+
+.disconnected {
+	border-color: rgba(244, 63, 94, 0.18);
+}
+
+.disconnected .dot {
+	background: #fb7185;
+	box-shadow: 0 0 12px rgba(251, 113, 133, 0.45);
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import type { OllamaConnectionStatus } from '../../../chat/protocol';
 import { ArrowLeftIcon, CloseIcon } from '../Icons';
 import { CommitChangesButton } from './CommitChangesButton';
 import { CurrentIntelligenceCard } from './CurrentIntelligenceCard';
@@ -6,6 +6,7 @@ import { GlobalOverrides } from './GlobalOverrides';
 import { HostGatewayField } from './HostGatewayField';
 import { InfrastructureLoadGrid } from './InfrastructureLoadGrid';
 import { ModelSelection } from './ModelSelection';
+import styles from './SettingsView.module.css';
 
 type InfrastructureLoad = 'low' | 'standard' | 'ideal' | 'max';
 type GlobalOverride = 'chat' | 'empty' | 'status' | 'error';
@@ -14,9 +15,14 @@ type SettingsViewProps = {
 	model: string;
 	modelOptions: string[];
 	host: string;
+	status: OllamaConnectionStatus;
+	modelsError?: string;
 	infrastructureLoad: InfrastructureLoad;
 	globalOverride: GlobalOverride;
 	helperText?: string;
+	isSaving: boolean;
+	canSave: boolean;
+	canTestConnection: boolean;
 	onBack: () => void;
 	onCommitChanges: () => void;
 	onHostChange: (value: string) => void;
@@ -30,9 +36,14 @@ export function SettingsView({
 	model,
 	modelOptions,
 	host,
+	status,
+	modelsError,
 	infrastructureLoad,
 	globalOverride,
 	helperText,
+	isSaving,
+	canSave,
+	canTestConnection,
 	onBack,
 	onCommitChanges,
 	onHostChange,
@@ -41,71 +52,73 @@ export function SettingsView({
 	onGlobalOverrideChange,
 	onModelChange,
 }: SettingsViewProps) {
-	const [localHelperText, setLocalHelperText] = useState('Preview only. No live network, persistence, or Ollama integration yet.');
-	const displayHelperText = helperText ?? localHelperText;
-
-	const currentModelName = (() => {
-		switch (model) {
-			case 'Llama 3.1':
-				return 'Llama 3.1 8B';
-			case 'Phi-3 Mini':
-				return 'Phi-3 Mini';
-			default:
-				return 'Mistral 7B';
-		}
-	})();
+	const hasModels = modelOptions.length > 0;
+	const currentModelName = model || 'No model selected';
+	const displayHelperText = helperText ?? 'Update the host or model, then test the local Ollama connection.';
 
 	return (
-		<div className="mx-auto flex w-full max-w-[380px] flex-col gap-3">
-			<header className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-1 pb-1">
+		<div className={styles.settingsView}>
+			<header className={styles.header}>
 				<button
 					type="button"
 					onClick={onBack}
 					aria-label="Back to chat"
-					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.05] bg-white/[0.03] text-[#d5b7a8] transition hover:bg-white/[0.06]"
+					className={styles.iconButton}
 				>
-					<ArrowLeftIcon className="h-4 w-4" />
+					<ArrowLeftIcon className={styles.icon} />
 				</button>
-				<div className="text-center">
-					<p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8d7a72]">System</p>
-					<h1 className="mt-1 text-[18px] font-semibold tracking-[-0.02em] text-[#f3ede5]">Settings</h1>
+				<div className={styles.titleGroup}>
+					<p className={styles.eyebrow}>System</p>
+					<h1 className={styles.title}>Settings</h1>
 				</div>
 				<button
 					type="button"
 					onClick={onBack}
 					aria-label="Close settings"
-					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.05] bg-white/[0.03] text-[#d5b7a8] transition hover:bg-white/[0.06]"
+					className={styles.iconButton}
 				>
-					<CloseIcon className="h-4 w-4" />
+					<CloseIcon className={styles.icon} />
 				</button>
 			</header>
 
 			<CurrentIntelligenceCard
 				modelDisplayName={currentModelName}
-				description="Balanced local reasoning profile prepared for a compact editor-native assistant workflow."
+				status={status}
+				description={
+					hasModels
+						? `${modelOptions.length} local model${modelOptions.length === 1 ? '' : 's'} available from Ollama.`
+						: 'No local Ollama models are available yet.'
+				}
 			/>
 
-			<ModelSelection model={model} options={modelOptions} onModelChange={onModelChange} />
+			<ModelSelection
+				model={model}
+				options={modelOptions}
+				disabled={status === 'checking' || !hasModels}
+				error={modelsError}
+				onModelChange={onModelChange}
+			/>
 
 			<HostGatewayField
 				host={host}
 				helperText={displayHelperText}
-				onDocs={() => {
-					setLocalHelperText('Docs is a local-only preview action in this MVP.');
-				}}
 				onHostChange={onHostChange}
 				onTestConnection={onTestConnection}
+				disabled={!canTestConnection}
+				isChecking={status === 'checking'}
 			/>
 
 			<InfrastructureLoadGrid selected={infrastructureLoad} onSelect={onInfrastructureLoadChange} />
 
 			<GlobalOverrides value={globalOverride} onChange={onGlobalOverrideChange} />
 
-			<div className="rounded-[18px] border border-white/[0.05] bg-[#171415] px-4 py-3 text-[11px] leading-5 text-[#8f8178]">
-				These controls are visual only for now. They let you validate layout, state transitions, and hierarchy before wiring anything real.
+			<div className={styles.note}>
+				Chat is enabled only when Ollama is connected and at least one local model is available.
 			</div>
 
 			<CommitChangesButton
+				disabled={!canSave || isSaving}
+				isSaving={isSaving}
 				onCommit={() => {
 					onCommitChanges();
 				}}

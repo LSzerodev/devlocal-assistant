@@ -1,0 +1,56 @@
+.header {
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	align-items: center;
+	gap: 12px;
+}
+
+.brandSlot {
+	display: flex;
+	align-items: center;
+}
+
+.brandMark {
+	display: flex;
+	width: 32px;
+	height: 32px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	background: rgba(255, 124, 34, 0.1);
+	color: #ff7c22;
+	box-shadow: 0 0 18px rgba(255, 124, 34, 0.24);
+}
+
+.logo {
+	width: 20px;
+	height: 20px;
+	object-fit: contain;
+}
+
+.statusSlot {
+	justify-self: center;
+}
+
+.settingsButton {
+	display: flex;
+	width: 32px;
+	height: 32px;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.03);
+	color: #d5b7a8;
+	cursor: pointer;
+	transition: background 160ms ease, border-color 160ms ease;
+}
+
+.settingsButton:hover {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.settingsIcon {
+	width: 16px;
+	height: 16px;
+}

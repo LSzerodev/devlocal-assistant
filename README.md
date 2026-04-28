@@ -1,257 +1,315 @@
 # DevLocal AI
 
-Local-first AI for VS Code, built as an early-stage open-source project focused on privacy, local models, and offline-friendly developer workflows.
+DevLocal AI é uma extensão local-first para VS Code, ainda em desenvolvimento, focada em privacidade, modelos locais, Ollama, workflows offline-friendly e colaboração open-source.
 
-## About
+> Status honesto: o projeto já tem uma base implementada e testável em ambiente de desenvolvimento, mas ainda não é uma extensão finalizada ou pronta para produção.
 
-DevLocal AI is a VS Code extension project designed to become a local-first coding and study assistant that runs inside the editor. The long-term goal is to give developers a practical alternative to cloud-dependent assistants by keeping the core experience close to the machine, close to the codebase, and under the user's control.
+## Visão Geral
 
-This repository is still in active development. The UI foundation is already in place, the webview and extension layers are being wired together, and the communication structure between both sides is taking shape. Real Ollama connectivity, persistent settings, richer chat behavior, and future local knowledge retrieval workflows are still in progress.
+O objetivo do DevLocal AI é oferecer uma alternativa local-first para assistência de código e estudo dentro do VS Code. A direção do projeto é manter a experiência principal perto da máquina do usuário, com controle sobre o runtime, o modelo local e o fluxo de dados.
 
-The project direction is privacy-friendly and offline-oriented:
+A proposta do projeto é:
 
-- local models instead of mandatory cloud APIs
-- developer-controlled runtime and model choice
-- no reliance on external token billing for the core local experience
-- future support for stronger local context and knowledge retrieval workflows
+- usar modelos locais em vez de depender obrigatoriamente de APIs em nuvem;
+- integrar com Ollama como runtime local inicial;
+- manter uma experiência amigável para uso offline depois do setup local;
+- preservar privacidade por padrão, evitando envio automático de código e prompts para serviços externos;
+- evoluir em público com contribuições da comunidade.
 
-At the same time, this README is intentionally honest: DevLocal AI is not fully finished yet, and this repository should currently be treated as an early open-source foundation rather than a production-ready extension.
+O projeto ainda está em fase inicial. Algumas partes já funcionam, outras estão parcialmente conectadas, e várias áreas importantes ainda precisam de acabamento, testes e validação de UX.
 
-## Why This Project
+## Estado Atual do Projeto
 
-There are good reasons to build a local-first assistant for VS Code:
+O DevLocal AI já possui uma fundação real de extensão VS Code com webview em React, comunicação entre UI e extension host, persistência básica de configurações e integração inicial com Ollama.
 
-- Privacy matters. Many developers want help inside the editor without sending code, prompts, or notes to external services by default.
-- Local control matters. The user should be able to choose the model, the machine, and the tradeoffs.
-- Cost predictability matters. A local workflow should not depend on recurring API token usage for its core experience.
-- Offline-friendly tooling matters. The long-term vision is to let people study, prototype, and work even in environments with limited or no connectivity, once the local runtime and assets are already installed.
-- Building in public matters. DevLocal AI is intended to grow with community feedback, community fixes, and shared learning.
+Na prática, hoje o projeto está neste ponto:
 
-This project is also a practical learning exercise in building a serious VS Code extension around:
+- a extensão registra uma view do DevLocal AI na Activity Bar do VS Code;
+- a UI principal roda dentro de uma webview;
+- existe tela de chat e tela de Settings;
+- a webview conversa com a extensão por um protocolo tipado;
+- a extensão consegue carregar e salvar configurações básicas localmente;
+- a extensão consegue testar conexão com Ollama e listar modelos locais via API;
+- o chat já possui envio simples para Ollama usando `/api/generate`, sem streaming;
+- estados de conexão, loading e erro já existem, mas ainda precisam ser refinados.
 
-- extension host and webview communication
-- local AI integration
-- UI state orchestration
-- future retrieval-augmented local knowledge workflows
-- transparent open-source iteration
+Isso significa que existe uma base funcional em desenvolvimento, não apenas um mock visual. Mesmo assim, o produto ainda precisa de melhorias antes de ser considerado estável.
 
-## Current Status
+## O Que Já Foi Implementado
 
-DevLocal AI is in an early but meaningful stage. The project already has a visible foundation, but important parts of the real product flow are still being completed.
+### Extensão VS Code
 
-### Implemented
+- Scaffold básico de extensão VS Code em TypeScript.
+- Registro da Activity Bar do DevLocal AI.
+- Registro da webview `devlocalAI.chatView`.
+- Comando `DevLocal AI: Open Chat Sidebar`.
+- Bootstrap da extensão em `src/extension.ts`.
+- Provider da webview em `src/chat/chatViewProvider.ts`.
+- HTML da webview com CSP e nonce em `src/chat/getChatWebviewHtml.ts`.
 
-- VS Code activity bar container and chat webview registration
-- sidebar/chat UI foundation
-- settings UI foundation
-- React-based webview application
-- Tailwind-based styling pipeline for the webview
-- componentized UI structure for the sidebar and settings screens
-- HTML bootstrapping for the webview
-- typed message protocol draft between webview and extension
-- `messageRouter` structure for handling extension-side messages
-- initial extension-to-webview and webview-to-extension wiring
-- project layout prepared for future growth
+### Webview e UI
 
-### In Progress
+- Aplicação React renderizada dentro da webview.
+- Estrutura de UI componentizada para chat, sidebar e Settings.
+- Tela de chat com composer, seleção de modelo e área de resposta.
+- Tela de Settings com modelo atual, seleção de modelo, host do Ollama, teste de conexão e cards de infraestrutura.
+- Estado local da UI organizado com reducer/controller.
+- Build da webview com Rollup.
+- CSS Modules e estilos globais para a UI atual.
 
-- completion of real message routing behavior
-- real chat flow integration between the UI and extension
-- real Ollama connectivity
-- settings load/save flow integration
-- connection status flow
-- UI state wiring based on extension responses
-- better alignment between protocol types and actual UI behavior
-- cleanup and hardening of the extension/webview boundary
+### Comunicação Entre Webview e Extensão
 
-### Planned
+- Protocolo tipado em `src/chat/protocol.ts`.
+- Router de mensagens em `src/chat/messageRouter.ts`.
+- Mensagens para:
+  - carregar settings;
+  - salvar settings;
+  - testar conexão com Ollama;
+  - enviar prompt para chat;
+  - retornar loading, erro e resposta.
 
-- real Ollama request handling
-- local model selection and management
-- connection testing flow
-- persistent settings storage
-- richer chat states
-- response streaming
-- better loading and error handling
-- hardware-aware model guidance
-- model suggestions based on the user's machine profile
-- stronger code-aware assistance
-- local knowledge retrieval / offline knowledge base support
-- more complete tests
-- contributor-friendly architecture improvements
-- public open-source collaboration workflows
+### Ollama e Configurações
 
-## Project Vision
+- Host padrão do Ollama: `http://localhost:11434`.
+- Normalização de host local.
+- Persistência básica de `host` e `model` via `context.globalState`.
+- Checagem inicial de conexão com Ollama.
+- Verificação da CLI `ollama` disponível no `PATH`.
+- Listagem de modelos locais via `/api/tags`.
+- Envio de prompt via `/api/generate` com `stream: false`.
 
-The long-term vision for DevLocal AI is not only "chat inside VS Code." The broader goal is a local-first assistant that can help people while studying, debugging, and building software without forcing them into a cloud-only workflow.
+### Tooling
 
-The intended direction is:
+- Scripts npm para build, watch, lint e testes.
+- TypeScript para extensão e webview.
+- Rollup para bundle da webview.
+- ESLint configurado.
+- Teste inicial de extensão ainda em formato de exemplo.
 
-- a VS Code-native assistant
-- local model execution through tools such as Ollama
-- user-controlled hardware and model choice
-- an offline-friendly workflow after local setup is complete
-- future support for local knowledge retrieval so the assistant can work with more than just raw conversation context
+## Stack Atual
 
-In other words, DevLocal AI aims to reduce dependence on external API billing and expand beyond plain prompt history by combining:
+- TypeScript.
+- VS Code Extension API.
+- React.
+- CSS Modules e CSS global na webview atual.
+- Rollup.
+- ESLint.
+- npm.
 
-- local chat
-- local project context
-- future local knowledge retrieval
+Observação: o README anterior mencionava Tailwind como direção de styling, mas o `package.json` atual não traz Tailwind configurado como dependência. Se Tailwind for mantido como escolha oficial, a configuração e a documentação dessa camada ainda precisam ser alinhadas.
 
-That vision is larger than what is already implemented in this repository today, but it is the direction this codebase is being built toward.
+## O Que Está em Desenvolvimento
 
-## Architecture Overview
+As áreas abaixo já têm alguma base no código, mas ainda precisam de evolução:
 
-At a high level, the project is split into two major layers:
+- endurecimento do protocolo de mensagens entre webview e extensão;
+- melhoria do fluxo de chat e do histórico de mensagens;
+- melhoria dos estados de loading, erro e conexão;
+- refinamento da integração com Ollama em cenários reais;
+- UX da tela de Settings;
+- persistência de mais opções da UI, além de `host` e `model`;
+- testes úteis para router, protocolo, serviços e ativação da extensão;
+- documentação de setup, arquitetura e contribuição.
 
-1. The VS Code extension host
-2. The webview UI
+## O Que Ainda Precisa Ser Implementado
 
-The current communication flow is designed like this:
+Itens importantes ainda pendentes ou planejados:
 
-```text
-React Webview UI
-  -> typed webview message
-  -> extension-side chat view provider
-  -> message router
-  -> service/dependency layer
-  -> response back to the webview
-```
+- ajuste completo do layout da tela de Settings;
+- orientação de modelos com base na quantidade de GB de RAM da máquina do usuário;
+- definição de como obter ou informar a RAM disponível, seja por detecção, input do usuário ou combinação dos dois;
+- recomendações de modelos por faixa de hardware, seguindo a ideia visual da referência `ref1.png`;
+- persistência real para todos os controles relevantes da tela de Settings;
+- instalação, atualização ou gerenciamento de modelos locais pela UI, se essa direção for mantida;
+- streaming de respostas do Ollama;
+- histórico de chat mais completo;
+- melhor tratamento de erros de rede, host inválido, modelo ausente e timeout;
+- acessibilidade da UI;
+- validação runtime das mensagens entre webview e extensão;
+- testes automatizados além do teste de exemplo atual;
+- fluxo de release e empacotamento da extensão;
+- suporte futuro a contexto local do projeto e base de conhecimento offline.
 
-### Current architectural roles
+## Protótipo no Figma
 
-- `src/extension.ts`
-  Bootstraps the extension, registers the webview view provider, and provides the current dependency wiring.
+Existe um layout prototipado no Figma para orientar a evolução visual da interface:
 
-- `src/chat/chatViewProvider.ts`
-  Owns the VS Code webview integration and acts as the bridge between the webview and the extension host.
+https://www.figma.com/design/3zseClvCrJ9F6lWBchEAbY/Untitled?node-id=1-4&t=3llQ0vkKlDK0Iibr-1
 
-- `src/chat/protocol.ts`
-  Defines the typed message contract between the webview and the extension.
+A referência visual `ref1.png` aponta especialmente para a tela de Settings. A ideia planejada é que essa tela ajude o usuário a entender qual tipo de modelo faz sentido para a máquina dele, usando faixas como:
 
-- `src/chat/messageRouter.ts`
-  Centralizes extension-side handling for supported message types such as settings, status checks, and chat requests.
+- `< 4 GB`: modelos muito leves;
+- `8 GB`: modelos pequenos e otimizados;
+- `16 GB`: modelos intermediários;
+- `32 GB+`: modelos maiores ou múltiplos modelos.
 
-- `src/webview/**`
-  Contains the React application, UI components, and webview styling.
+Hoje já existe uma base visual de cards de infraestrutura na Settings, mas ela ainda não está conectada a uma recomendação real de hardware/modelo. Essa é uma das áreas mais importantes para contribuição.
 
-- `media/webview/**`
-  Generated webview build artifacts used by the extension at runtime.
+## Setup Local
 
-### Intended future architecture
+### Pré-requisitos
 
-As the project matures, this structure is expected to grow into clearer service layers for:
+- Node.js LTS.
+- npm.
+- VS Code.
+- Ollama instalado, caso você queira testar o chat local de ponta a ponta.
+- VS Code compatível com `^1.109.0`, conforme declarado no `package.json`.
 
-- Ollama communication
-- settings persistence
-- model and hardware recommendations
-- richer chat state handling
-- future local retrieval / knowledge workflows
-
-## Project Structure
-
-The current repository is organized around a clear extension/webview split:
-
-```text
-devlocal-ia/
-├─ media/
-│  ├─ devlocal-ai.svg
-│  └─ webview/
-├─ src/
-│  ├─ chat/
-│  │  ├─ chatViewProvider.ts
-│  │  ├─ getChatWebviewHtml.ts
-│  │  ├─ messageRouter.ts
-│  │  └─ protocol.ts
-│  ├─ test/
-│  │  └─ extension.test.ts
-│  ├─ webview/
-│  │  ├─ app/
-│  │  ├─ components/
-│  │  ├─ styles/
-│  │  ├─ assets/
-│  │  ├─ assets.d.ts
-│  │  └─ main.tsx
-│  └─ extension.ts
-├─ .vscode/
-├─ package.json
-├─ rollup.config.mjs
-├─ tsconfig.json
-└─ eslint.config.mjs
-```
-
-### Notes on the structure
-
-- `src/chat` contains the extension-side chat/webview communication layer.
-- `src/webview` contains the React UI that is bundled and injected into the VS Code webview.
-- `media/webview` contains generated assets produced by the webview build pipeline.
-- `out` is the TypeScript output for the extension runtime.
-
-## Tech Stack
-
-The current repository is built with:
-
-- TypeScript
-- VS Code Extension API
-- React
-- Tailwind CSS
-- Rollup
-- ESLint
-- Node.js tooling via npm
-
-UI-wise, the project follows a component-driven approach and uses patterns compatible with a modern design-system mindset. The current codebase does not yet include a full standalone shadcn/ui package setup, so the safest description today is:
-
-- React + Tailwind webview UI
-- reusable component structure inspired by modern design-system practices
-
-## Running Locally
-
-### Prerequisites
-
-Recommended:
-
-- Node.js LTS
-- npm
-- VS Code
-
-Repository requirement:
-
-- VS Code `^1.109.0` as declared in `package.json`
-
-### Install dependencies
+### Instalando o projeto
 
 ```bash
+git clone <URL_DO_REPOSITORIO>
+cd devlocal-ia
 npm install
 ```
 
-### Start the development watchers
+### Rodando em modo desenvolvimento
 
-This project uses separate watchers for:
-
-- extension TypeScript compilation
-- webview CSS build
-- webview JS bundle
-
-Run:
+Em um terminal, rode:
 
 ```bash
 npm run watch
 ```
 
-### Launch the extension in development mode
+Depois, com o projeto aberto no VS Code:
 
-With the workspace open in VS Code:
+1. Pressione `F5`.
+2. Aguarde abrir o `Extension Development Host`.
+3. No novo VS Code, abra a Activity Bar do DevLocal AI.
+4. Se quiser testar com Ollama, mantenha o Ollama rodando localmente e tenha ao menos um modelo instalado.
 
-1. Start the watcher task with `npm run watch`, or use the default VS Code task if it works correctly in your environment.
-2. Press `F5` to open an `Extension Development Host`.
-3. In the development host, open the DevLocal AI sidebar from the activity bar or run the command:
+Exemplo de setup local do Ollama:
 
-```text
-DevLocal AI: Open Chat Sidebar
+```bash
+ollama pull mistral
+ollama serve
 ```
 
-### Useful scripts
+O host padrão esperado pela extensão é:
+
+```text
+http://localhost:11434
+```
+
+### Observação para Windows
+
+Se o VS Code tentar executar tasks via WSL e você não tiver WSL instalado, altere o terminal padrão ou shell das tasks para PowerShell ou Command Prompt e rode `npm run watch` novamente.
+
+## Scripts Úteis
+
+| Script | Descrição |
+| --- | --- |
+| `npm run watch` | Roda watchers da extensão TypeScript e do bundle da webview. |
+| `npm run compile` | Compila a webview e a extensão. |
+| `npm run lint` | Roda ESLint em `src`. |
+| `npm test` | Roda os testes da extensão via `vscode-test`. |
+| `npm run build:webview` | Gera o bundle da webview. |
+| `npm run watch:extension` | Observa mudanças na extensão TypeScript. |
+| `npm run watch:webview:js` | Observa mudanças na webview com Rollup. |
+| `npm run vscode:prepublish` | Executa o build usado antes de publicar/empacotar. |
+
+## Arquitetura Resumida
+
+O projeto é dividido em duas camadas principais:
+
+1. Extension host do VS Code.
+2. Webview UI em React.
+
+O fluxo atual de comunicação segue esta ideia:
+
+```text
+React Webview UI
+  -> mensagem tipada da webview
+  -> ChatViewProvider
+  -> messageRouter
+  -> services/dependências
+  -> resposta de volta para a webview
+```
+
+Papéis principais:
+
+- `src/extension.ts`: ativa a extensão, registra a webview e injeta dependências.
+- `src/chat/chatViewProvider.ts`: faz a ponte entre VS Code, webview e router.
+- `src/chat/protocol.ts`: define o contrato de mensagens.
+- `src/chat/messageRouter.ts`: centraliza o tratamento das mensagens.
+- `src/services`: concentra integrações locais, começando por Ollama.
+- `src/webview`: contém a aplicação React da interface.
+
+## Estrutura do Projeto
+
+```text
+devlocal-ia/
+|-- media/
+|   |-- devlocal-ai.svg
+|   `-- webview/
+|-- src/
+|   |-- chat/
+|   |   |-- chatViewProvider.ts
+|   |   |-- getChatWebviewHtml.ts
+|   |   |-- messageRouter.ts
+|   |   |-- ollamaHost.ts
+|   |   `-- protocol.ts
+|   |-- services/
+|   |   |-- ollama.check.ts
+|   |   `-- ollama.service.ts
+|   |-- test/
+|   |   `-- extension.test.ts
+|   |-- webview/
+|   |   |-- app/
+|   |   |-- assets/
+|   |   |-- components/
+|   |   |-- styles/
+|   |   |-- assets.d.ts
+|   |   `-- main.tsx
+|   `-- extension.ts
+|-- .vscode/
+|-- package.json
+|-- rollup.config.mjs
+|-- tsconfig.json
+|-- eslint.config.mjs
+|-- ref1.png
+`-- README.md
+```
+
+### Notas Sobre a Estrutura
+
+- `src/chat` concentra a ponte entre webview e extension host.
+- `src/services` concentra serviços ligados ao runtime local, começando por Ollama.
+- `src/webview` contém a aplicação React usada dentro da webview.
+- `media/webview` recebe os arquivos gerados pelo build da webview.
+- `out` recebe a saída compilada da extensão.
+
+## Contribuindo com o Projeto
+
+Contribuições são muito bem-vindas. O DevLocal AI ainda está em desenvolvimento, então há espaço para contribuições em código, documentação, design, testes, acessibilidade, arquitetura e feedback de uso.
+
+Este projeto não está sendo apresentado como finalizado. A ideia é construir em público, com uma base honesta, iterativa e aberta para pessoas que queiram ajudar a transformar a fundação atual em uma extensão local-first realmente útil.
+
+### Fluxo Recomendado para Contribuir
+
+1. Faça um fork do repositório no GitHub.
+2. Clone o seu fork localmente.
+3. Instale as dependências:
+
+```bash
+npm install
+```
+
+4. Rode o projeto em modo desenvolvimento:
+
+```bash
+npm run watch
+```
+
+5. Abra o Extension Development Host com `F5` no VS Code.
+6. Crie uma branch descritiva para sua contribuição:
+
+```bash
+git checkout -b feat/settings-ram-guidance
+```
+
+7. Faça mudanças pequenas e focadas sempre que possível.
+8. Quando aplicável, rode:
 
 ```bash
 npm run compile
@@ -259,172 +317,91 @@ npm run lint
 npm test
 ```
 
-### Development notes
+9. Abra um Pull Request explicando claramente o que foi alterado e por quê.
+10. Inclua screenshots ou vídeos curtos quando a mudança envolver UI.
 
-- `npm run compile` builds both the webview assets and the extension output.
-- `npm run watch` is the main development command and is the easiest way to keep the webview and extension outputs updated together.
-- The current webview build writes generated assets into `media/webview/`.
-- Some current flows are intentionally incomplete because the project is still under active development.
+### Boas Áreas Para Contribuir Agora
 
-### Windows note
+- melhorar o layout da tela de Settings;
+- implementar orientação de modelos com base na RAM do usuário;
+- conectar todos os controles da Settings com persistência real;
+- integrar Ollama de forma funcional e mais robusta;
+- melhorar o fluxo de chat;
+- melhorar estados de loading, erro e conexão;
+- melhorar acessibilidade da UI;
+- adicionar testes;
+- melhorar documentação e onboarding;
+- revisar o protocolo de mensagens entre webview e extensão;
+- validar melhor erros de host, modelo ausente e Ollama indisponível;
+- melhorar a experiência de setup local para novos contribuidores.
 
-If VS Code tries to launch tasks through WSL and you do not have WSL installed, switch your VS Code terminal/default task shell to PowerShell or Command Prompt and rerun the development task. This is an environment issue, not a DevLocal AI feature issue.
+### Expectativas Para Pull Requests
 
-## Contributing
+- Prefira PRs pequenos e focados.
+- Explique o problema que o PR resolve.
+- Descreva impactos em protocolo, estado ou UX quando existirem.
+- Inclua screenshots ou vídeos curtos para mudanças visuais.
+- Rode `npm run compile`, `npm run lint` e `npm test` quando fizer sentido.
+- Não trate código parcial como produto finalizado sem deixar claro o estado da implementação.
 
-Contributions are welcome.
-
-This repository is intentionally being opened before every feature is finished because early contributors can help shape both the architecture and the developer experience. If you want to help build a serious local-first AI extension for VS Code, this is a good time to join.
-
-Please keep in mind:
-
-- the project is still early-stage
-- some flows are intentionally partial
-- message routing and runtime integration are still evolving
-- design, architecture, and developer experience are still open to improvement
-
-### What contributors can help with
-
-There are many useful contribution paths right now, including both small and large changes:
-
-- improve extension/webview integration
-- refine `messageRouter` structure and organization
-- strengthen protocol typing and message safety
-- help connect settings to persistent storage
-- wire real Ollama requests into the extension layer
-- improve connection status handling
-- improve loading and error flows
-- organize future service boundaries
-- polish sidebar and settings UI behavior
-- improve accessibility and UX details
-- add tests around protocol, routing, and extension flows
-- improve documentation and onboarding
-- report bugs and clarify rough edges in the developer setup
-
-### Good contribution examples
-
-Smaller contributions:
-
-- clean up a single UI behavior
-- improve a protocol type
-- fix a message mismatch
-- improve a loading state
-- clarify setup documentation
-- add a focused test
-
-Larger contributions:
-
-- wire a full settings persistence path
-- build a real Ollama service layer
-- improve routing architecture
-- design a cleaner status/error pipeline
-- prepare the codebase for future local knowledge retrieval support
-
-### Contribution expectations
-
-Helpful contributions usually share a few traits:
-
-- small, focused pull requests are easier to review
-- explain the problem clearly before proposing a large architectural change
-- if you change UX, include notes or screenshots when relevant
-- if you change message flow, explain the protocol impact
-- if you touch early-stage code, expect follow-up iteration
-
-If you are unsure where to start, opening an issue or discussion with a concrete proposal is already a meaningful contribution.
-
-## How You Can Help Right Now
-
-If you want a practical starting point, these are especially valuable right now:
-
-- improve `messageRouter` structure and safety
-- improve protocol typing between the extension and webview
-- help connect settings to persistent storage
-- help wire real Ollama requests
-- improve status handling and state synchronization
-- improve error flow and failure reporting
-- help organize extension services more cleanly
-- improve developer experience for local setup and debugging
-- refine current UI behavior and interaction details
-- add tests for message routing and extension activation
-- improve documentation for contributors and first-time testers
+Iniciantes podem começar com documentação, pequenos ajustes de UI, estados de erro, acessibilidade ou testes. Pessoas mais experientes podem ajudar na arquitetura de serviços, protocolo de mensagens, integração com Ollama, persistência e fluxo de chat.
 
 ## Roadmap
 
-### Foundation
+### Base da Extensão
 
-- [x] Basic VS Code extension scaffold
-- [x] Sidebar/webview shell
-- [x] Settings UI foundation
-- [x] Initial protocol and router structure
-- [x] Early extension/webview communication flow
-- [ ] Harden message contracts and runtime validation
-- [ ] Improve service organization
+- [x] Scaffold básico da extensão VS Code.
+- [x] Activity Bar e webview inicial.
+- [x] UI React dentro da webview.
+- [x] Protocolo tipado inicial.
+- [x] Router de mensagens.
+- [x] Persistência básica de settings.
+- [ ] Validação runtime do protocolo.
+- [ ] Testes úteis para fluxo extension/webview.
 
-### Local AI Integration
+### Ollama e Modelos Locais
 
-- [ ] Real Ollama connectivity
-- [ ] Real chat request flow
-- [ ] Model selection flow
-- [ ] Connection testing flow
-- [ ] Better local runtime diagnostics
+- [x] Host padrão do Ollama.
+- [x] Teste inicial de conexão.
+- [x] Listagem de modelos locais.
+- [x] Envio simples de prompt para `/api/generate`.
+- [ ] Streaming de respostas.
+- [ ] Diagnóstico melhor de instalação, host, timeout e modelos.
+- [ ] Gerenciamento ou instalação de modelos pela UI, se adotado.
 
-### Persistence and UX
+### Settings e UX
 
-- [ ] Persist settings
-- [ ] Improve chat state management
-- [ ] Add better loading states
-- [ ] Add clearer error states
-- [ ] Support response streaming
+- [x] Tela inicial de Settings.
+- [x] Seleção de modelo disponível no Ollama.
+- [x] Salvamento básico de host/modelo.
+- [ ] Ajuste do layout de Settings conforme Figma/ref1.
+- [ ] Recomendações de modelo por GB de RAM.
+- [ ] Persistência dos controles adicionais.
+- [ ] Melhor acessibilidade e responsividade da webview.
 
-### Context and Knowledge
+### Chat e Contexto
 
-- [ ] Improve code-aware assistance
-- [ ] Add local knowledge retrieval direction
-- [ ] Explore offline RAG-style knowledge workflows
-- [ ] Improve context assembly for local assistance
+- [x] Composer e envio simples de prompt.
+- [x] Resposta básica do modelo.
+- [ ] Histórico de conversa.
+- [ ] Estados de erro e loading mais completos.
+- [ ] Contexto local do projeto.
+- [ ] Futuro suporte a base de conhecimento local/offline.
 
-### Open-Source Readiness
+### Open Source
 
-- [ ] Strengthen tests
-- [ ] Improve contributor onboarding
-- [ ] Improve repository documentation
-- [ ] Clarify release and issue workflow
-- [ ] Prepare the project for broader community iteration
+- [x] README com estado honesto do projeto.
+- [ ] Guia de issues e PRs.
+- [ ] Mais testes automatizados.
+- [ ] Documentação de arquitetura.
+- [ ] Processo de release e empacotamento.
 
-## Built in Public
+## Licença
 
-DevLocal AI is being built in public.
+Este projeto está licenciado sob a Apache License 2.0.
 
-That means the repository is expected to evolve openly, including:
+Mantenha o arquivo `LICENSE` e o campo `license` do `package.json` alinhados em futuras mudanças.
 
-- rough edges being discovered in real time
-- architecture being refined through collaboration
-- progress updates being shared publicly
-- community contributions shaping the project direction
+## Autor
 
-Early contributors are especially valuable in a project like this because they do not just fix bugs, they help define how the project grows.
-
-## Development Stage Note
-
-This repository is not presented as a finished local AI product yet.
-
-At the moment, DevLocal AI is best understood as:
-
-- a serious early-stage extension project
-- a clear local-first product direction
-- a UI and architecture foundation already in place
-- an open invitation for contributors to help finish and harden the system
-
-What is already visible is promising. What matters now is turning that foundation into a reliable, well-structured local assistant workflow.
-
-## License
-
-This project is licensed under the Apache License 2.0.
-
-If you publish future releases, keep the root `LICENSE` file and the `package.json` license metadata aligned so the repository terms remain clear to contributors and users.
-
-## Author
-
-DevLocal AI was built and is maintained by Luis.
-
-The project is being developed openly with the goal of evolving into a meaningful, privacy-friendly, local-first AI assistant for VS Code with community collaboration over time.
+DevLocal AI é mantido por Luis e está sendo desenvolvido em público como uma extensão local-first, privacy-friendly e aberta à colaboração da comunidade.

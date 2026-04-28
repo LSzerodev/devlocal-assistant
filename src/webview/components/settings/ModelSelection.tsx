@@ -1,36 +1,46 @@
 import { ChevronDownIcon, SparkIcon } from '../Icons';
+import styles from './ModelSelection.module.css';
 
 type ModelSelectionProps = {
 	model: string;
 	options: string[];
+	disabled?: boolean;
+	error?: string;
 	onModelChange: (value: string) => void;
 };
 
-export function ModelSelection({ model, options, onModelChange }: ModelSelectionProps) {
+export function ModelSelection({ model, options, disabled = false, error, onModelChange }: ModelSelectionProps) {
+	const hasOptions = options.length > 0;
+	const value = hasOptions && options.includes(model) ? model : '';
+
 	return (
-		<section className="rounded-[20px] border border-white/[0.05] bg-white/[0.03] p-4">
-			<p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8d7a72]">Selection</p>
-			<div className="relative mt-3">
-				<span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#f4a259]">
-					<SparkIcon className="h-3.5 w-3.5" />
+		<section className={styles.section}>
+			<p className={styles.eyebrow}>Selection</p>
+			<div className={styles.selectWrap}>
+				<span className={styles.leftIcon}>
+					<SparkIcon className={styles.sparkIcon} />
 				</span>
 				<select
-					value={model}
+					value={value}
 					onChange={(event) => {
 						onModelChange(event.target.value);
 					}}
-					className="w-full appearance-none rounded-2xl border border-white/[0.05] bg-[#221d1b] py-3 pl-8 pr-10 text-[13px] font-semibold text-[#f1ebe4] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] focus:border-[#ff8c3a]/35 focus:outline-none"
+					disabled={disabled}
+					className={styles.select}
 				>
+					{hasOptions ? null : <option value="">No local models found</option>}
+					{hasOptions && value === '' ? <option value="">Select a local model</option> : null}
 					{options.map((option) => (
 						<option key={option} value={option}>
 							{option}
 						</option>
 					))}
 				</select>
-				<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#8f8178]">
-					<ChevronDownIcon className="h-4 w-4" />
+				<span className={styles.rightIcon}>
+					<ChevronDownIcon className={styles.chevronIcon} />
 				</span>
 			</div>
+			{error ? <p className={styles.errorText}>{error}</p> : null}
 		</section>
 	);
 }

@@ -1,0 +1,134 @@
+.composer {
+	padding: 20px 16px 16px;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.035);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42);
+	backdrop-filter: blur(12px);
+}
+
+.promptInput {
+	width: 100%;
+	height: 112px;
+	resize: none;
+	border: 0;
+	background: transparent;
+	color: #f1ebe4;
+	font-size: 15px;
+	line-height: 1.6;
+	outline: none;
+}
+
+.promptInput::placeholder {
+	color: #786d68;
+}
+
+.promptInput:disabled {
+	cursor: not-allowed;
+	opacity: 0.56;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modelControl {
+	position: relative;
+	width: 100%;
+	max-width: 170px;
+	min-width: 0;
+	flex: 1;
+}
+
+.leftIcon,
+.rightIcon {
+	pointer-events: none;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.leftIcon {
+	left: 12px;
+	color: #f4a259;
+}
+
+.rightIcon {
+	right: 12px;
+	color: #8e8179;
+}
+
+.sparkIcon {
+	width: 14px;
+	height: 14px;
+}
+
+.chevronIcon {
+	width: 16px;
+	height: 16px;
+}
+
+.modelSelect {
+	width: 100%;
+	padding: 10px 36px 10px 32px;
+	appearance: none;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 12px;
+	background: #26211f;
+	color: #d7c6ba;
+	font-size: 12px;
+	font-weight: 700;
+	outline: none;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.modelSelect:focus {
+	border-color: rgba(255, 140, 58, 0.3);
+}
+
+.modelSelect:disabled {
+	cursor: not-allowed;
+	opacity: 0.62;
+}
+
+.sendButton {
+	display: flex;
+	width: 56px;
+	height: 56px;
+	flex: 0 0 56px;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	border-radius: 999px;
+	background: linear-gradient(180deg, #ff9d4d 0%, #ff7a1f 100%);
+	color: #fff;
+	cursor: pointer;
+	box-shadow:
+		0 0 0 1px rgba(255, 179, 115, 0.22),
+		0 0 28px rgba(255, 125, 36, 0.42);
+	transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.sendButton:hover {
+	transform: scale(1.02);
+	box-shadow:
+		0 0 0 1px rgba(255, 179, 115, 0.28),
+		0 0 34px rgba(255, 125, 36, 0.5);
+}
+
+.sendButton:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+	transform: none;
+}
+
+.sendIcon {
+	width: 20px;
+	height: 20px;
+}

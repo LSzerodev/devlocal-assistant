@@ -1,87 +1,180 @@
-import {
-  ChatSettings,
-  ExtensionToWebview,
-  OllamaConnectionStatus,
-  SendChat,
-  WebviewToExtension,
+import type {
+	ChatResponse,
+	ChatSettings,
+	ExtensionToWebview,
+	OllamaStatusPayload,
+	SendChat,
+	WebviewToExtension,
 } from './protocol';
+import { normalizeOllamaHost } from './ollamaHost';
 
-type postToWebview = (message: ExtensionToWebview) => void;
+type PostToWebview = (message: ExtensionToWebview) => void;
 
 export interface RouterDependencies {
-  settingsLoad: {
-    settingsLoad(): Promise<ChatSettings>;
-  };
-  ollamaStatus: {
-    statusOllama(): Promise<{status: OllamaConnectionStatus}>;
-  };
-  settingsSave: {
-    settingsSave(save: ChatSettings): Promise<void>;
-  };
-  chatSend: {
-    chatSend(send: SendChat): Promise<{ response: string; model: string }>;
-  };
+	settings: {
+		load(): Promise<ChatSettings>;
+		save(settings: ChatSettings): Promise<ChatSettings>;
+	};
+	ollama: {
+		check(host?: string): Promise<OllamaStatusPayload>;
+	};
+	chat: {
+		send(send: SendChat): Promise<ChatResponse>;
+	};
 }
 
 export async function messageRouter(
-  message: WebviewToExtension,
-  postToWebview: postToWebview,
-  deps: RouterDependencies
-) {
-  switch (message.type) {
-    case 'settings.save':
-      try{
-        await deps.settingsSave.settingsSave(message.payload);
-          postToWebview({ type: 'settings.saved' });
-      }catch(error: any){
-        console.error('error saved message router: ' + error);
-      }
+	message: WebviewToExtension,
+	postToWebview: PostToWebview,
+	deps: RouterDependencies
+): Promise<void> {
+	switch (message.type) {
+		case 'settings.load':
+			await handleSettingsLoad(postToWebview, deps);
+			return;
 
-      break;
+		case 'settings.save':
+			await handleSettingsSave(message.payload, postToWebview, deps);
+			return;
 
-    case 'settings.load':
-      try {
-        const settings = await deps.settingsLoad.settingsLoad();
-        postToWebview({
-          type: 'settings.loaded',
-          payload: settings,
-        });
-      } catch (error: any) {
-        console.error("error loaded message router: " + error);
-      }
-      break;
+		case 'ollama.check':
+			await handleOllamaCheck(message.payload?.host, postToWebview, deps);
+			return;
 
-      case 'chat.send':
-      try{
-        postToWebview({ type: 'chat.loading' });
-        const result = await deps.chatSend.chatSend(message.payload);
-        postToWebview({
-          type: 'chat.response',
-          payload: result,
-        });
+		case 'chat.send':
+			await handleChatSend(message.payload, postToWebview, deps);
+			return;
+	}
+}
 
-      } catch (error: any){
-        postToWebview({
-          type: 'chat.error',
-          payload: {
-            error: error.toString()
-          }
-        });
+async function handleSettingsLoad(postToWebview: PostToWebview, deps: RouterDependencies): Promise<void> {
+	try {
+		const settings = await deps.settings.load();
 
-        console.error('error chat send message router: ', error);
-      }
-      break;
+		postToWebview({
+			type: 'settings.loaded',
+			payload: settings,
+		});
+	} catch (error) {
+		postSettingsError(postToWebview, 'Unable to load local settings.', error);
+	}
+}
 
-      case "ollama.checkStatus":
-      try{
-        const checkedStatus = await deps.ollamaStatus.statusOllama();
-        postToWebview({
-          type: 'ollama.status',
-          payload: checkedStatus
-        });
+async function handleSettingsSave(
+	settings: ChatSettings,
+	postToWebview: PostToWebview,
+	deps: RouterDependencies
+): Promise<void> {
+	try {
+		const savedSettings = await deps.settings.save(settings);
 
-      }catch(error: any){
-        console.error('error check in status ollma messageRouter: ' + error);
-      }break;
-    }
+		postToWebview({
+			type: 'settings.saved',
+			payload: savedSettings,
+		});
+
+		await postOllamaStatus(savedSettings.host, postToWebview, deps);
+	} catch (error) {
+		postSettingsError(postToWebview, 'Unable to save local settings.', error);
+	}
+}
+
+async function handleOllamaCheck(
+	host: string | undefined,
+	postToWebview: PostToWebview,
+	deps: RouterDependencies
+): Promise<void> {
+	try {
+		const settings = host ? undefined : await deps.settings.load();
+		const hostToCheck = host ?? settings?.host;
+
+		await postOllamaStatus(hostToCheck, postToWebview, deps);
+	} catch (error) {
+		postToWebview({
+			type: 'ollama.status',
+			payload: {
+				status: 'disconnected',
+				host: normalizeOllamaHost(host),
+				models: [],
+				error: getErrorMessage(error, 'Unable to check Ollama.'),
+			},
+		});
+	}
+}
+
+async function postOllamaStatus(
+	host: string | undefined,
+	postToWebview: PostToWebview,
+	deps: RouterDependencies
+): Promise<void> {
+	const hostToCheck = normalizeOllamaHost(host);
+
+	postToWebview({
+		type: 'ollama.status',
+		payload: {
+			status: 'checking',
+			host: hostToCheck,
+			models: [],
+		},
+	});
+
+	try {
+		const status = await deps.ollama.check(hostToCheck);
+
+		postToWebview({
+			type: 'ollama.status',
+			payload: status,
+		});
+	} catch (error) {
+		postToWebview({
+			type: 'ollama.status',
+			payload: {
+				status: 'disconnected',
+				host: hostToCheck,
+				models: [],
+				error: getErrorMessage(error, 'Unable to check Ollama.'),
+			},
+		});
+	}
+}
+
+async function handleChatSend(
+	send: SendChat,
+	postToWebview: PostToWebview,
+	deps: RouterDependencies
+): Promise<void> {
+	try {
+		postToWebview({ type: 'chat.loading' });
+
+		const result = await deps.chat.send(send);
+
+		postToWebview({
+			type: 'chat.response',
+			payload: result,
+		});
+	} catch (error) {
+		postToWebview({
+			type: 'chat.error',
+			payload: {
+				error: getErrorMessage(error, 'Unable to send message to Ollama.'),
+			},
+		});
+	}
+}
+
+function postSettingsError(postToWebview: PostToWebview, fallback: string, error: unknown): void {
+	postToWebview({
+		type: 'settings.error',
+		payload: {
+			error: getErrorMessage(error, fallback),
+		},
+	});
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+	if (error instanceof Error && error.message) {
+		return error.message;
+	}
+
+	return fallback;
 }
