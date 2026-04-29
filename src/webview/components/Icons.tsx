@@ -120,6 +120,34 @@ export function PlugIcon(props: IconProps) {
 	);
 }
 
+export function DownloadIcon(props: IconProps) {
+	return (
+		<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+			<path d="M10 3.5v8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+			<path d="m6.8 8.8 3.2 3.2 3.2-3.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M4.5 15.5h11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+		</svg>
+	);
+}
+
+export function CheckIcon(props: IconProps) {
+	return (
+		<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+			<circle cx="10" cy="10" r="6.8" stroke="currentColor" strokeWidth="1.5" />
+			<path d="m6.9 10.2 2 2 4.2-4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+		</svg>
+	);
+}
+
+export function CloudIcon(props: IconProps) {
+	return (
+		<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+			<path d="M7.5 15.5h6.4a3 3 0 0 0 .4-6 4.6 4.6 0 0 0-8.6-1.2A3.7 3.7 0 0 0 7.5 15.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="m8.2 12 1.4 1.4 3-3.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+		</svg>
+	);
+}
+
 export function BookIcon(props: IconProps) {
 	return (
 		<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>

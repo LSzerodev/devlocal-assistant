@@ -10,6 +10,23 @@ export interface OllamaModel {
 	quantizationLevel?: string;
 }
 
+export interface OllamaCatalogModel {
+	name: string;
+	sizeGb?: number;
+}
+
+export interface OllamaModelCatalogPayload {
+	localModels: OllamaCatalogModel[];
+	cloudModels: OllamaCatalogModel[];
+}
+
+export interface OllamaDownloadProgressPayload {
+	model: string;
+	percent: number;
+	status: 'downloading' | 'complete' | 'error';
+	error?: string;
+}
+
 export interface ChatSettings {
 	model: string;
 	host: string;
@@ -48,6 +65,13 @@ export type WebviewToExtension =
 			};
 		}
 	| {
+			type: 'models.download';
+			payload: {
+				host: string;
+				model: string;
+			};
+		}
+	| {
 			type: 'chat.send';
 			payload: SendChat;
 		};
@@ -70,6 +94,14 @@ export type ExtensionToWebview =
 	| {
 			type: 'ollama.status';
 			payload: OllamaStatusPayload;
+		}
+	| {
+			type: 'models.catalog';
+			payload: OllamaModelCatalogPayload;
+		}
+	| {
+			type: 'models.downloadProgress';
+			payload: OllamaDownloadProgressPayload;
 		}
 	| {
 			type: 'chat.response';

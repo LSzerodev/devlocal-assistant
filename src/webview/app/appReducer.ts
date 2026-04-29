@@ -1,6 +1,12 @@
-import type { ChatResponse, ChatSettings, OllamaStatusPayload } from '../../chat/protocol';
+import type {
+	ChatResponse,
+	ChatSettings,
+	OllamaDownloadProgressPayload,
+	OllamaModelCatalogPayload,
+	OllamaStatusPayload,
+} from '../../chat/protocol';
 import { DEFAULT_OLLAMA_HOST, normalizeOllamaHost } from '../../chat/ollamaHost';
-import type { AppState, AppView, GlobalOverride, InfrastructureLoad } from './types';
+import type { AppState, AppView, InfrastructureLoad } from './types';
 
 export const initialAppState: AppState = {
 	currentView: 'chat',
@@ -22,6 +28,10 @@ export const initialAppState: AppState = {
 		host: DEFAULT_OLLAMA_HOST,
 		models: [],
 	},
+	downloads: {
+		localModels: [],
+		cloudModels: [],
+	},
 	chat: {
 		prompt: '',
 		response: null,
@@ -30,7 +40,6 @@ export const initialAppState: AppState = {
 	},
 	controls: {
 		infrastructureLoad: 'ideal',
-		globalOverride: 'chat',
 	},
 };
 
@@ -44,13 +53,15 @@ export type AppAction =
 	| { type: 'settings.error'; error: string }
 	| { type: 'ollama.checking'; host?: string }
 	| { type: 'ollama.statusChanged'; payload: OllamaStatusPayload }
+	| { type: 'models.catalogLoaded'; payload: OllamaModelCatalogPayload }
+	| { type: 'models.downloadRequested'; model: string }
+	| { type: 'models.downloadProgressChanged'; payload: OllamaDownloadProgressPayload }
 	| { type: 'chat.promptChanged'; prompt: string }
 	| { type: 'chat.requested' }
 	| { type: 'chat.loading' }
 	| { type: 'chat.response'; response: ChatResponse }
 	| { type: 'chat.error'; error: string }
-	| { type: 'controls.infrastructureLoadChanged'; value: InfrastructureLoad }
-	| { type: 'controls.globalOverrideChanged'; value: GlobalOverride };
+	| { type: 'controls.infrastructureLoadChanged'; value: InfrastructureLoad };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
 	switch (action.type) {
@@ -214,6 +225,38 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 			};
 		}
 
+		case 'models.catalogLoaded':
+			return {
+				...state,
+				downloads: {
+					...state.downloads,
+					localModels: action.payload.localModels,
+					cloudModels: action.payload.cloudModels,
+				},
+			};
+
+		case 'models.downloadRequested':
+			return {
+				...state,
+				downloads: {
+					...state.downloads,
+					progress: {
+						model: action.model,
+						percent: 0,
+						status: 'downloading',
+					},
+				},
+			};
+
+		case 'models.downloadProgressChanged':
+			return {
+				...state,
+				downloads: {
+					...state.downloads,
+					progress: action.payload,
+				},
+			};
+
 		case 'chat.promptChanged':
 			return {
 				...state,
@@ -270,15 +313,6 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 				controls: {
 					...state.controls,
 					infrastructureLoad: action.value,
-				},
-			};
-
-		case 'controls.globalOverrideChanged':
-			return {
-				...state,
-				controls: {
-					...state.controls,
-					globalOverride: action.value,
 				},
 			};
 	}

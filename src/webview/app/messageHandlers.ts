@@ -22,6 +22,14 @@ export function handleExtensionMessage(message: ExtensionToWebview, dispatch: Ap
 			handleOllamaMessage(message, dispatch);
 			return;
 
+		case 'models.catalog':
+			dispatch({ type: 'models.catalogLoaded', payload: message.payload });
+			return;
+
+		case 'models.downloadProgress':
+			dispatch({ type: 'models.downloadProgressChanged', payload: message.payload });
+			return;
+
 		case 'chat.loading':
 			handleChatMessage(message, dispatch);
 			return;

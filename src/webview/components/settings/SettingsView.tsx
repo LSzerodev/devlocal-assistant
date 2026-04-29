@@ -1,24 +1,29 @@
-import type { OllamaConnectionStatus } from '../../../chat/protocol';
+import type {
+	OllamaCatalogModel,
+	OllamaConnectionStatus,
+	OllamaDownloadProgressPayload,
+} from '../../../chat/protocol';
 import { ArrowLeftIcon, CloseIcon } from '../Icons';
 import { CommitChangesButton } from './CommitChangesButton';
 import { CurrentIntelligenceCard } from './CurrentIntelligenceCard';
-import { GlobalOverrides } from './GlobalOverrides';
 import { HostGatewayField } from './HostGatewayField';
 import { InfrastructureLoadGrid } from './InfrastructureLoadGrid';
+import { ModelInstall } from './ModelInstall';
 import { ModelSelection } from './ModelSelection';
 import styles from './SettingsView.module.css';
 
 type InfrastructureLoad = 'low' | 'standard' | 'ideal' | 'max';
-type GlobalOverride = 'chat' | 'empty' | 'status' | 'error';
 
 type SettingsViewProps = {
 	model: string;
 	modelOptions: string[];
+	downloadableModels: OllamaCatalogModel[];
+	cloudModels: OllamaCatalogModel[];
+	downloadProgress?: OllamaDownloadProgressPayload;
 	host: string;
 	status: OllamaConnectionStatus;
 	modelsError?: string;
 	infrastructureLoad: InfrastructureLoad;
-	globalOverride: GlobalOverride;
 	helperText?: string;
 	isSaving: boolean;
 	canSave: boolean;
@@ -27,19 +32,21 @@ type SettingsViewProps = {
 	onCommitChanges: () => void;
 	onHostChange: (value: string) => void;
 	onTestConnection: () => void;
+	onDownloadModel: (model: string) => void;
 	onInfrastructureLoadChange: (value: InfrastructureLoad) => void;
-	onGlobalOverrideChange: (value: GlobalOverride) => void;
 	onModelChange: (value: string) => void;
 };
 
 export function SettingsView({
 	model,
 	modelOptions,
+	downloadableModels,
+	cloudModels,
+	downloadProgress,
 	host,
 	status,
 	modelsError,
 	infrastructureLoad,
-	globalOverride,
 	helperText,
 	isSaving,
 	canSave,
@@ -48,8 +55,8 @@ export function SettingsView({
 	onCommitChanges,
 	onHostChange,
 	onTestConnection,
+	onDownloadModel,
 	onInfrastructureLoadChange,
-	onGlobalOverrideChange,
 	onModelChange,
 }: SettingsViewProps) {
 	const hasModels = modelOptions.length > 0;
@@ -99,6 +106,21 @@ export function SettingsView({
 				onModelChange={onModelChange}
 			/>
 
+			<section className={styles.modelConfiguration}>
+				<div>
+					<h2 className={styles.sectionTitle}>Model Configuration</h2>
+					<p className={styles.sectionDescription}>Configure local and cloud-based intelligence environments.</p>
+				</div>
+				<ModelInstall
+					models={downloadableModels}
+					cloudModels={cloudModels}
+					installedModelNames={modelOptions}
+					downloadProgress={downloadProgress}
+					disabled={status !== 'connected'}
+					onDownload={onDownloadModel}
+				/>
+			</section>
+
 			<HostGatewayField
 				host={host}
 				helperText={displayHelperText}
@@ -109,8 +131,6 @@ export function SettingsView({
 			/>
 
 			<InfrastructureLoadGrid selected={infrastructureLoad} onSelect={onInfrastructureLoadChange} />
-
-			<GlobalOverrides value={globalOverride} onChange={onGlobalOverrideChange} />
 
 			<div className={styles.note}>
 				Chat is enabled only when Ollama is connected and at least one local model is available.

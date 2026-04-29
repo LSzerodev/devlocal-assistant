@@ -1,6 +1,7 @@
 import type {
 	ChatResponse,
 	ChatSettings,
+	OllamaModelCatalogPayload,
 	ExtensionToWebview,
 	OllamaStatusPayload,
 	SendChat,
@@ -17,6 +18,8 @@ export interface RouterDependencies {
 	};
 	ollama: {
 		check(host?: string): Promise<OllamaStatusPayload>;
+		getCatalog(): OllamaModelCatalogPayload;
+		download(host: string | undefined, model: string, onProgress: (percent: number) => void): Promise<void>;
 	};
 	chat: {
 		send(send: SendChat): Promise<ChatResponse>;
@@ -41,6 +44,10 @@ export async function messageRouter(
 			await handleOllamaCheck(message.payload?.host, postToWebview, deps);
 			return;
 
+		case 'models.download':
+			await handleModelDownload(message.payload.host, message.payload.model, postToWebview, deps);
+			return;
+
 		case 'chat.send':
 			await handleChatSend(message.payload, postToWebview, deps);
 			return;
@@ -54,6 +61,10 @@ async function handleSettingsLoad(postToWebview: PostToWebview, deps: RouterDepe
 		postToWebview({
 			type: 'settings.loaded',
 			payload: settings,
+		});
+		postToWebview({
+			type: 'models.catalog',
+			payload: deps.ollama.getCatalog(),
 		});
 	} catch (error) {
 		postSettingsError(postToWebview, 'Unable to load local settings.', error);
@@ -157,6 +168,48 @@ async function handleChatSend(
 			type: 'chat.error',
 			payload: {
 				error: getErrorMessage(error, 'Unable to send message to Ollama.'),
+			},
+		});
+	}
+}
+
+async function handleModelDownload(
+	host: string | undefined,
+	model: string,
+	postToWebview: PostToWebview,
+	deps: RouterDependencies
+): Promise<void> {
+	const postDownloadProgress = (percent: number) => {
+		postToWebview({
+			type: 'models.downloadProgress',
+			payload: {
+				model,
+				percent,
+				status: 'downloading',
+			},
+		});
+	};
+
+	try {
+		postDownloadProgress(0);
+		await deps.ollama.download(host, model, postDownloadProgress);
+		postToWebview({
+			type: 'models.downloadProgress',
+			payload: {
+				model,
+				percent: 100,
+				status: 'complete',
+			},
+		});
+		await postOllamaStatus(host, postToWebview, deps);
+	} catch (error) {
+		postToWebview({
+			type: 'models.downloadProgress',
+			payload: {
+				model,
+				percent: 0,
+				status: 'error',
+				error: getErrorMessage(error, 'Unable to download this Ollama model.'),
 			},
 		});
 	}

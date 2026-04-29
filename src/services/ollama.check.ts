@@ -13,7 +13,6 @@ export class OllamaChecker {
 
 		try {
 			const models = await fetchOllamaModels(normalizedHost);
-
 			return {
 				status: 'connected',
 				host: normalizedHost,

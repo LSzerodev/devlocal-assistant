@@ -102,6 +102,22 @@ export function useAppController() {
 		});
 	}, [postToExtension, state.settings.form]);
 
+	const downloadModel = useCallback((model: string) => {
+		if (state.settings.form.host.trim().length === 0) {
+			dispatch({ type: 'settings.error', error: 'Enter an Ollama host before downloading a model.' });
+			return;
+		}
+
+		dispatch({ type: 'models.downloadRequested', model });
+		postToExtension({
+			type: 'models.download',
+			payload: {
+				host: state.settings.form.host,
+				model,
+			},
+		});
+	}, [postToExtension, state.settings.form.host]);
+
 	const sendChat = useCallback(() => {
 		const prompt = state.chat.prompt.trim();
 
@@ -138,6 +154,7 @@ export function useAppController() {
 		openSettings,
 		checkOllama,
 		saveSettings,
+		downloadModel,
 		sendChat,
 		setHost: (host: string) => {
 			dispatch({ type: 'settings.hostChanged', host });
@@ -150,9 +167,6 @@ export function useAppController() {
 		},
 		setInfrastructureLoad: (value: typeof state.controls.infrastructureLoad) => {
 			dispatch({ type: 'controls.infrastructureLoadChanged', value });
-		},
-		setGlobalOverride: (value: typeof state.controls.globalOverride) => {
-			dispatch({ type: 'controls.globalOverrideChanged', value });
 		},
 	};
 }

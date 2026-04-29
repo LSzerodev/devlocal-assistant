@@ -15,11 +15,11 @@ export function App() {
 		canTestConnection,
 		canUseChat,
 		checkOllama,
+		downloadModel,
 		openChat,
 		openSettings,
 		saveSettings,
 		sendChat,
-		setGlobalOverride,
 		setHost,
 		setInfrastructureLoad,
 		setModel,
@@ -34,11 +34,13 @@ export function App() {
 					<SettingsView
 						model={state.settings.form.model}
 						modelOptions={availableModelNames}
+						downloadableModels={state.downloads.localModels}
+						cloudModels={state.downloads.cloudModels}
+						downloadProgress={state.downloads.progress}
 						host={state.settings.form.host}
 						status={state.ollama.status}
 						modelsError={state.ollama.error}
 						infrastructureLoad={state.controls.infrastructureLoad}
-						globalOverride={state.controls.globalOverride}
 						helperText={state.settings.helperText}
 						isSaving={state.settings.isSaving}
 						canSave={canSaveSettings}
@@ -47,8 +49,8 @@ export function App() {
 						onCommitChanges={saveSettings}
 						onHostChange={setHost}
 						onTestConnection={checkOllama}
+						onDownloadModel={downloadModel}
 						onInfrastructureLoadChange={setInfrastructureLoad}
-						onGlobalOverrideChange={setGlobalOverride}
 						onModelChange={setModel}
 					/>
 				}

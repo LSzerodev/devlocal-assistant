@@ -4,7 +4,7 @@ import type { RouterDependencies } from './chat/messageRouter';
 import { DEFAULT_OLLAMA_HOST, normalizeOllamaHost } from './chat/ollamaHost';
 import type { ChatSettings } from './chat/protocol';
 import { OllamaChecker } from './services/ollama.check';
-import { ollamaFetch } from './services/ollama.service';
+import { downloadModels, getOllamaModelCatalog, ollamaFetch } from './services/ollama.service';
 
 const SETTINGS_KEY = 'devlocalAI.settings';
 const DEFAULT_SETTINGS: ChatSettings = {
@@ -27,6 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 		ollama: {
 			check: async (host) => ollamaChecker.check(host),
+			getCatalog: () => getOllamaModelCatalog(),
+			download: async (host, model, onProgress) => downloadModels(host, model, onProgress),
 		},
 		chat: {
 			send: async (send) => ollamaFetch(send),

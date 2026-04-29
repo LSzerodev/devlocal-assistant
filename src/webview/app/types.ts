@@ -1,8 +1,14 @@
-import type { ChatResponse, ChatSettings, OllamaConnectionStatus, OllamaModel } from '../../chat/protocol';
+import type {
+	ChatResponse,
+	ChatSettings,
+	OllamaCatalogModel,
+	OllamaConnectionStatus,
+	OllamaDownloadProgressPayload,
+	OllamaModel,
+} from '../../chat/protocol';
 
 export type AppView = 'chat' | 'settings';
 export type InfrastructureLoad = 'low' | 'standard' | 'ideal' | 'max';
-export type GlobalOverride = 'chat' | 'empty' | 'status' | 'error';
 
 export interface AppState {
 	currentView: AppView;
@@ -19,6 +25,11 @@ export interface AppState {
 		models: OllamaModel[];
 		error?: string;
 	};
+	downloads: {
+		localModels: OllamaCatalogModel[];
+		cloudModels: OllamaCatalogModel[];
+		progress?: OllamaDownloadProgressPayload;
+	};
 	chat: {
 		prompt: string;
 		response: ChatResponse | null;
@@ -27,6 +38,5 @@ export interface AppState {
 	};
 	controls: {
 		infrastructureLoad: InfrastructureLoad;
-		globalOverride: GlobalOverride;
 	};
 }

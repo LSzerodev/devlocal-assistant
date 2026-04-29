@@ -173,12 +173,12 @@ npm run watch
 
 Depois, com o projeto aberto no VS Code:
 
-1. Pressione `F5`.
+1. Pressione `F5` no arquivo `extension.ts`
 2. Aguarde abrir o `Extension Development Host`.
 3. No novo VS Code, abra a Activity Bar do DevLocal AI.
 4. Se quiser testar com Ollama, mantenha o Ollama rodando localmente e tenha ao menos um modelo instalado.
 
-Exemplo de setup local do Ollama:
+Exemplo para abaixar models direto pelo ollama:
 
 ```bash
 ollama pull mistral
